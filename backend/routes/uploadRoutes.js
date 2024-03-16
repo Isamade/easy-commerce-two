@@ -41,6 +41,8 @@ router.post('/', (req, res) => {
   uploadSingleImage(req, res, async function (err) {
     const __filename = fileURLToPath(import.meta.url);
     const __dirname = path.dirname(__filename);
+    console.log('filename', __filename);
+    console.log('dirname', __dirname);
     if (err) {
       return res.status(400).send({ message: err.message });
     }
@@ -62,6 +64,8 @@ router.get('/:id', async (req, res) => {
   try {
     const __filename = fileURLToPath(import.meta.url);
     const __dirname = path.dirname(__filename);
+    console.log('filename2', __filename);
+    console.log('dirname2', __dirname);
     const upload = await Upload.find({_id: req.params.id});
     if (upload.lenght !== 0) {
       const location = path.resolve(__dirname, '../../uploads');
