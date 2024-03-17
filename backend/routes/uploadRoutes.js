@@ -41,22 +41,32 @@ router.post('/', (req, res) => {
   uploadSingleImage(req, res, async function (err) {
     const __filename = fileURLToPath(import.meta.url);
     const __dirname = path.dirname(__filename);
-    console.log('filename', __filename);
-    console.log('dirname', __dirname);
     if (err) {
       return res.status(400).send({ message: err.message });
     }
-
-    const upload = new Upload({
-      pic: fs.readFileSync(path.resolve(__dirname, '../../uploads', 'pic')),
-      contentType: `${req.file.mimetype}`
-    });
-    const createdUpload = await upload.save();
+    const upload = await Upload.find({productId: req.body.productId}).select('-pic');
+    if (upload.length != 0) {
+      upload[0].pic = fs.readFileSync(path.resolve(__dirname, '../../uploads', 'pic'));
+      upload[0].contentType = `${req.file.mimetype}`;
+      await upload[0].save()
+      res.status(200).send({
+        message: 'Image uploaded successfully',
+        image: `/api/upload/${upload[0]._id}`
+      })
+    }
+    else {
+      const newUpload = new Upload({
+        pic: fs.readFileSync(path.resolve(__dirname, '../../uploads', 'pic')),
+        contentType: `${req.file.mimetype}`,
+        productId: req.body.productId
+      });
+      const completeUpload = await newUpload.save();
   
-    res.status(200).send({
-      message: 'Image uploaded successfully',
-      image: `/api/upload/${createdUpload._id}`,
-    });
+      res.status(200).send({
+        message: 'Image uploaded successfully',
+        image: `/api/upload/${completeUpload._id}`
+      });
+    }
   });
 });
 
@@ -67,7 +77,7 @@ router.get('/:id', async (req, res) => {
     console.log('filename2', __filename);
     console.log('dirname2', __dirname);
     const upload = await Upload.find({_id: req.params.id});
-    if (upload.lenght !== 0) {
+    if (upload.length !== 0) {
       const location = path.resolve(__dirname, '../../uploads');
       fs.writeFileSync(`${location}/${req.params.id}.${upload[0].contentType.split('/')[1]}`, upload[0].pic, function(err) {
         if (err) {

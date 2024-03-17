@@ -3,7 +3,8 @@ import mongoose from 'mongoose';
 const uploadSchema = mongoose.Schema(
   {
     pic: Buffer,
-    contentType: String
+    contentType: String,
+    productId: String
   },
   {
     timestamps: true,
